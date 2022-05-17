@@ -23,7 +23,18 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("mcare-inc").collection("products");
-    
+
+    //get products
+    app.get("/products",async(req,res)=>{
+        const q = req.query;
+        const cursor = productCollection.find(q);
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+    //create product
+    app.post("/product",async(req,res)=>{
+        const data = req.body;
+    })
    
   } finally {
     // await client.close();
