@@ -1,19 +1,41 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const res = require("express/lib/response");
+
 const app = express();
 const port = process.env.PORT || 3006;
-require('dotenv').config();
+require("dotenv").config();
 
 //middleware
 app.use(express.json());
 app.use(cors());
 
-async function run(){
-    try{
+const uri =
+      `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.pud0h.mongodb.net/?retryWrites=true&w=majority`;
+    const client = new MongoClient(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverApi: ServerApiVersion.v1,
+    });
 
-    }finally{
-        // await client.close();
-    }
+async function run() {
+  try {
+    await client.connect();
+    const productCollection = client.db("mcare-inc").collection("products");
+    
+   
+  } finally {
+    // await client.close();
+  }
 }
 
 run().catch(console.dir);
+
+app.get('/',(req,res)=>{
+    res.send('we are getting data from backend');
+})
+
+app.listen(port,()=>{
+    console.log('listening... port',port);
+});
