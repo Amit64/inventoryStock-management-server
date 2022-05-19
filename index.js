@@ -45,14 +45,13 @@ async function run() {
         res.send(result);
     })
     //update delevered product quantity
-    app.put("/product/:id",async(req,res)=>{
+    app.put("/product-delever/:id",async(req,res)=>{
         const id = req.params.id;
-        const query = {}
         
         const data = req.body.quantity;
-        console.log(data);
+        console.log('body data',data);
          const newData = data - 1;
-        // console.log(newData);
+         console.log('updated data',newData);
         const filter = {_id:ObjectId(id)};
         const options = { upsert: true };
         const updateDoc = {
@@ -61,10 +60,23 @@ async function run() {
             }          
         };
         const result = await productCollection.updateOne(filter,updateDoc,options);
-        console.log(result);
         res.send(result);
     })
-    //update stock
+   // update add to stock
+    app.put("/product-restock/:id",async(req,res)=>{
+        const id = req.params.id;
+        const data = req.body.quantity;
+        
+        const filter = {_id:ObjectId(id)};
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: {
+                quantity: data
+            }          
+        };
+         const result = await productCollection.updateOne(filter,updateDoc,options);
+         res.send(result);
+    })
    
   } finally {
     // await client.close();
