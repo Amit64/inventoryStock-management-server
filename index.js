@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const res = require("express/lib/response");
+const { status } = require("express/lib/response");
 
 const app = express();
 const port = process.env.PORT || 3006;
@@ -10,6 +12,24 @@ require("dotenv").config();
 //middleware
 app.use(express.json());
 app.use(cors());
+
+//virefy token
+function verifyToken(req,res,next){
+    const authHeader = req.headers.authorization;
+    //console.log(authHeader);
+    if(!authHeader){
+        return res.status(401).send({messege: 'unauthorized user'})
+    }
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,decoded)=>{
+        if(err){
+            return res.status(403).send({messege:'forbidden access'})
+        }
+        req.decoded = decoded;
+        next();
+    })
+    //console.log(token);
+}
 
 const uri =
       `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.pud0h.mongodb.net/?retryWrites=true&w=majority`;
@@ -23,6 +43,16 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("mcare-inc").collection("products");
+
+    //Auth
+    app.post('/login',async(req,res)=>{
+        const user = req.body;
+        const accessToken = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
+            expiresIn:'1d'
+        });
+        res.send({accessToken})
+
+    })
 
     //get products
     app.get("/products",async(req,res)=>{
@@ -51,7 +81,7 @@ async function run() {
         const data = req.body.quantity;
         console.log('body data',data);
          const newData = data - 1;
-         console.log('updated data',newData);
+         //console.log('updated data',newData);
         const filter = {_id:ObjectId(id)};
         const options = { upsert: true };
         const updateDoc = {
@@ -84,6 +114,19 @@ async function run() {
         const result = await productCollection.deleteOne(query);
         res.send(result);
     })
+    //get filter product by email address
+    app.get("/filter-products",verifyToken,async(req,res)=>{
+        const decodedEmail = req.decoded.email;
+        const email = req.query.email;
+        if(decodedEmail===email){
+        const query = {email};
+        const cursor = productCollection.find(query);
+        const items = await cursor.toArray();
+        res.send(items);
+    }else{
+        res.status(403).send({messege:"forbidden access"})
+    }
+     })
    
   } finally {
     // await client.close();
