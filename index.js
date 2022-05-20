@@ -77,6 +77,13 @@ async function run() {
          const result = await productCollection.updateOne(filter,updateDoc,options);
          res.send(result);
     })
+    // delete single stock
+    app.delete("/delete-stock/:id",async(req,res)=>{
+        const id = req.params.id;
+        const query = {_id:ObjectId(id)};
+        const result = await productCollection.deleteOne(query);
+        res.send(result);
+    })
    
   } finally {
     // await client.close();
