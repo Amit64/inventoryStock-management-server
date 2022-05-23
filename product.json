@@ -1,0 +1,19 @@
+[
+    {
+        "name": "product name enter here",
+        "img":"img link enter here",
+        "price":"enter price",
+        "description": "only 2 line",
+        "quantity": 10,
+        "supplier": "mediaid"
+    },
+    {
+        "name": "product name enter here",
+        "img":"img link enter here",
+        "price":"enter price",
+        "description": "only 2 line",
+        "quantity": 10,
+        "supplier": "mediaid"
+    }
+
+]

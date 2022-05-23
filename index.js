@@ -2,8 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const res = require("express/lib/response");
-const { status } = require("express/lib/response");
+
 
 const app = express();
 const port = process.env.PORT || 3006;
@@ -56,9 +55,25 @@ async function run() {
 
     //get products
     app.get("/products",async(req,res)=>{
-        const q = req.query;
+        const page = parseInt(req.query.page);
+        //console.log(page);
+        const q = {};
         const cursor = productCollection.find(q);
-        const result = await cursor.toArray();
+        
+        let result;
+            if(page){
+                 result = await cursor.skip(page * 5).limit(5).toArray();
+            }
+            else{
+                result = await cursor.toArray();
+            }
+            res.send(result);
+    })
+    //get feature product
+    app.get('/limit-product',async(req,res)=>{
+        const query = {};
+        const cursor = productCollection.find(query);
+        const result = await cursor.limit(6).toArray();
         res.send(result);
     })
     //get single product by id
@@ -68,6 +83,13 @@ async function run() {
         const product = await productCollection.findOne(query);
         res.send(product);
       })
+
+    // get product count
+    app.get("/product-count",async(req,res)=>{
+        const query = {};
+        const count = await productCollection.countDocuments(query);
+        res.json({count});
+    })
     //create product
     app.post("/product",async(req,res)=>{
         const data = req.body;
@@ -79,7 +101,7 @@ async function run() {
         const id = req.params.id;
         
         const data = req.body.quantity;
-        console.log('body data',data);
+        //console.log('body data',data);
          const newData = data - 1;
          //console.log('updated data',newData);
         const filter = {_id:ObjectId(id)};
