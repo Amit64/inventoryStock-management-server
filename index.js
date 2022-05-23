@@ -62,7 +62,7 @@ async function run() {
         
         let result;
             if(page){
-                 result = await cursor.skip(page * 5).limit(5).toArray();
+                 result = await cursor.skip(page * 6).limit(6).toArray();
             }
             else{
                 result = await cursor.toArray();
