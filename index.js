@@ -61,7 +61,7 @@ async function run() {
         const cursor = productCollection.find(q);
         
         let result;
-            if(page){
+            if(page !== undefined){
                  result = await cursor.skip(page * 6).limit(6).toArray();
             }
             else{
